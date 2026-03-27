@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Total em estoque</h5>
+          <p class="display-6 mb-0">{{ total_estoque }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-warning">
+        <div class="card-body">
+          <h5 class="card-title">Alertas de validade</h5>
+          <p class="display-6 mb-0">{{ alertas_validade }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-success">
+        <div class="card-body">
+          <h5 class="card-title">Vendas do dia</h5>
+          <p class="display-6 mb-0">{{ vendas_hoje }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+  <h1 class="h3 mb-3">Área Administrativa</h1>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h6 text-muted">Total de produtos</h2>
+          <p class="display-6">{{ total_produtos }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h6 text-muted">Movimentações registradas</h2>
+          <p class="display-6">{{ total_movimentacoes }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

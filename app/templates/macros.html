@@ -1,0 +1,18 @@
+{% macro text_input(name, label, value='', type='text', invalid=False, error='') %}
+  <div class="mb-3">
+    <label for="{{ name }}" class="form-label">{{ label }}</label>
+    <input
+      id="{{ name }}"
+      name="{{ name }}"
+      type="{{ type }}"
+      value="{{ value }}"
+      class="form-control {% if invalid %}is-invalid{% endif %}">
+    {% if invalid %}
+      <div class="invalid-feedback">{{ error }}</div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro button(label, class_name='btn btn-primary') %}
+  <button type="submit" class="{{ class_name }}">{{ label }}</button>
+{% endmacro %}

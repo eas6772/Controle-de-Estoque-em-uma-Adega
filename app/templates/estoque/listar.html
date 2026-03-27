@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Estoque{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Gestão de Inventário</h1>
+  </div>
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+      <select name="categoria" class="form-select">
+        <option value="">Todas as categorias</option>
+        <option value="Bebidas">Bebidas</option>
+        <option value="Tabacaria">Tabacaria</option>
+        <option value="Snacks">Snacks</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button class="btn btn-outline-primary" type="submit">Filtrar</button>
+    </div>
+  </form>
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Categoria</th>
+          <th>Estoque</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for produto in produtos %}
+          <tr>
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.categoria.nome }}</td>
+            <td>
+              <span class="badge {% if produto.estoque_baixo %}text-bg-danger{% else %}text-bg-success{% endif %}">
+                {{ produto.estoque_total }}
+              </span>
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('estoque.entrada_rapida', produto_id=produto.id) }}" class="d-flex gap-2">
+                <input type="number" name="quantidade" min="1" value="1" class="form-control form-control-sm">
+                <input type="date" name="data_validade" class="form-control form-control-sm">
+                <button class="btn btn-sm btn-primary">Entrada Rápida</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

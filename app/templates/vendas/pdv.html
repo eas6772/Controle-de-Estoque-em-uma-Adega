@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}PDV{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h1 class="h4 mb-3">Frente de Caixa</h1>
+          <form method="post" class="row g-3">
+            <div class="col-12">
+              <label for="codigo_barras" class="form-label">Código de barras</label>
+              <input id="codigo_barras" name="codigo_barras" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label for="quantidade" class="form-label">Quantidade</label>
+              <input id="quantidade" type="number" name="quantidade" min="1" value="1" class="form-control">
+            </div>
+            <div class="col-md-8 d-flex align-items-end">
+              <button class="btn btn-success w-100">Registrar venda</button>
+            </div>
+          </form>
+          <p class="small text-muted mt-3 mb-0">
+            O sistema aplica PEPS automaticamente e bloqueia lotes vencidos.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

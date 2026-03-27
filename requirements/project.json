@@ -2,7 +2,7 @@
     "project_name": "Controle-de-Estoque-em-uma-Adega",
     "version": "0.1.0",
     "description": "Aplicação Web Flask com renderização Server-side (Jinja2) e UI baseada em Bootstrap 5 para controle de estoque em uma Adega.",
-    "implementation_plan": "@Adega.plan", 
+    "implementation_plan": "@Adega.plan.txt", 
     "stack": {
       "backend": {
         "language": "Python 3.10+",

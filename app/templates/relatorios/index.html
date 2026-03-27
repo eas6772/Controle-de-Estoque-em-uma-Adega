@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Relatórios{% endblock %}
+{% block content %}
+  <h1 class="h3 mb-3">Relatórios de Movimentações</h1>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Produto</th>
+          <th>Tipo</th>
+          <th>Quantidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mov in movimentacoes %}
+          <tr>
+            <td>{{ mov.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ mov.produto.nome }}</td>
+            <td>{{ mov.tipo }}</td>
+            <td>{{ mov.quantidade }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

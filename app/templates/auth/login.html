@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as ui %}
+{% block title %}Login{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h1 class="h4 text-center mb-3">Acesso ao sistema</h1>
+          <form method="post">
+            {{ ui.text_input('username', 'Usuário') }}
+            {{ ui.text_input('password', 'Senha', type='password') }}
+            <div class="d-grid">
+              {{ ui.button('Entrar') }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
