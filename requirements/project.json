@@ -1,0 +1,55 @@
+{
+    "project_name": "Controle-de-Estoque-em-uma-Adega",
+    "version": "0.1.0",
+    "description": "Aplicação Web Flask com renderização Server-side (Jinja2) e UI baseada em Bootstrap 5 para controle de estoque em uma Adega.",
+    "implementation_plan": "@Adega.plan", 
+    "stack": {
+      "backend": {
+        "language": "Python 3.10+",
+        "frameworks": ["Flask", "Flask-SQLAlchemy", "Flask-Login", "Flask-Migrate", "Bootstrap-Flask"],
+        "database": "SQLite",
+        "orm": "SQLAlchemy"
+      },
+      "frontend": {
+        "templating": "Jinja2",
+        "ui_framework": "Bootstrap 5 (via CDN)",
+        "assets": "Flask Static Files (url_for)"
+      }
+    },
+    "core_logic": {
+    "inventory_method": "PEPS (FIFO)",
+    "security": "Bloqueio de vendas com estoque zerado ou validade vencida",
+    "categories": ["Bebidas", "Tabacaria", "Snacks"]
+    },
+    "architecture": {
+      "style": "Monolítico / Blueprints",
+      "folder_structure": {
+        "models": "app/models.py",
+        "blueprints": ["Auth", "Estoque", "Vendas", "Relatórios", "Admin"],
+        "app/templates/": "Arquivos .html do Jinja2",
+        "app/static/": "CSS, JS e Imagens",
+        "app/routes/": "Lógica das rotas e Blueprints",
+        "static_uploads": "app/static/img/products/"
+      }
+    },
+    "integration_rules": {
+      "frontend_guidelines": "Seguir rigorosamente o arquivo @frontend_instructions.md",
+      "url_generation": "Sempre usar {{ url_for() }} para links e assets",
+      "component_logic": "Fragmentar componentes repetitivos em 'templates/partials/'",
+      "form_validation": "Usar classes .is-invalid e .invalid-feedback do Bootstrap para erros"
+    },
+    "conventions": {
+      "python_style": "PEP 8",
+      "html_style": "Identação de 2 espaços, atributos Bootstrap em ordem lógica",
+      "naming": {
+        "routes": "snake_case",
+        "templates": "snake_case (ex: user_profile.html)"
+      }
+    },
+    "business_rules": [
+      "Todas as páginas devem estender o 'base.html'",
+      "Mensagens de feedback ao usuário devem usar o sistema 'flash' do Flask com alertas Bootstrap",
+      "O banco de dados deve ser inicializado via Flask-Migrate"
+    ]
+  }
+  
