@@ -44,7 +44,7 @@ class Product(db.Model):
     nome = db.Column(db.String(120), nullable=False)
     categoria_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
     marca = db.Column(db.String(80), nullable=False)
-    codigo_barras = db.Column(db.String(30), unique=True, nullable=False)
+    codigo_barras = db.Column(db.String(30), unique=True, nullable=True)
     preco_custo = db.Column(db.Numeric(10, 2), nullable=False)
     preco_venda = db.Column(db.Numeric(10, 2), nullable=False)
     estoque_min = db.Column(db.Integer, nullable=False, default=0)
