@@ -20,4 +20,82 @@
       </div>
     </div>
   </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Usuários</h2>
+      <p class="text-muted small mb-3">Criar, editar e excluir contas da tabela <code>User</code>.</p>
+
+      <h3 class="h6 text-muted">Novo usuário</h3>
+      <form method="post" action="{{ url_for('admin.usuario_criar') }}" class="row g-2 align-items-end mb-4">
+        <div class="col-md-3">
+          <label class="form-label small mb-0" for="nu-username">Usuário</label>
+          <input id="nu-username" class="form-control form-control-sm" type="text" name="username" required autocomplete="username">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small mb-0" for="nu-password">Senha</label>
+          <input id="nu-password" class="form-control form-control-sm" type="password" name="password" required autocomplete="new-password">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-0" for="nu-role">Papel</label>
+          <select id="nu-role" class="form-select form-select-sm" name="role">
+            {% for r in roles_permitidas %}
+              <option value="{{ r }}" {% if r == 'operador' %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-sm btn-primary" type="submit">Criar</button>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuário</th>
+              <th>Papel</th>
+              <th>Criado em</th>
+              <th style="min-width: 280px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in usuarios %}
+              <tr>
+                <td>{{ u.id }}</td>
+                <td>
+                  <form method="post" action="{{ url_for('admin.usuario_editar', user_id=u.id) }}" id="form-edit-{{ u.id }}"></form>
+                  <input form="form-edit-{{ u.id }}" class="form-control form-control-sm" type="text" name="username" value="{{ u.username }}" required>
+                </td>
+                <td>
+                  <select form="form-edit-{{ u.id }}" class="form-select form-select-sm" name="role">
+                    {% for r in roles_permitidas %}
+                      <option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ r }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td class="small text-muted">{{ u.created_at.strftime('%d/%m/%Y %H:%M') if u.created_at else '—' }}</td>
+                <td>
+                  <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <input form="form-edit-{{ u.id }}" class="form-control form-control-sm" type="password" name="password" placeholder="Nova senha (opcional)" autocomplete="new-password">
+                    <button form="form-edit-{{ u.id }}" class="btn btn-sm btn-outline-primary" type="submit">Salvar</button>
+                    {% if u.id != current_user.id %}
+                      <form method="post" action="{{ url_for('admin.usuario_excluir', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Excluir este usuário?');">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Excluir</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="5" class="text-muted">Nenhum usuário cadastrado.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 {% endblock %}

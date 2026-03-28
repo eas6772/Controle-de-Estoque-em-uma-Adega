@@ -10,7 +10,9 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('estoque.listar') }}">Estoque</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('vendas.pdv') }}">PDV</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.index') }}">Admin</a></li>
+        {% if current_user.is_authenticated and current_user.is_admin %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.index') }}">Admin</a></li>
+        {% endif %}
       </ul>
       <div class="d-flex align-items-center ms-lg-auto flex-wrap gap-2 mt-2 mt-lg-0">
         {% if current_user.is_authenticated %}
