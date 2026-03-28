@@ -27,6 +27,10 @@ class User(UserMixin, db.Model):
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
 
+    @property
+    def is_admin(self) -> bool:
+        return self.role == "admin"
+
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
