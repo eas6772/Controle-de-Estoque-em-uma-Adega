@@ -1,16 +1,198 @@
-{% extends 'base.html' %}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {% extends 'base.html' %}
 {% block title %}Estoque{% endblock %}
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Gestão de Inventário</h1>
   </div>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header fw-semibold">Categorias</div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('estoque.categoria_criar') }}" class="row g-2 align-items-end">
+        <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+        <div class="col-md-5 col-lg-4">
+          <label class="form-label mb-0" for="nova-categoria-nome">Nova categoria</label>
+          <input type="text" id="nova-categoria-nome" name="nome" class="form-control" maxlength="40" placeholder="Ex.: Bebidas" required>
+        </div>
+        <div class="col-auto d-flex flex-wrap align-items-end gap-2">
+          <button type="submit" class="btn btn-primary">Incluir</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalCategorias">
+            Gerenciar categorias
+          </button>
+        </div>
+      </form>
+      {% if not categorias %}
+        <p class="text-muted small mb-0 mt-3">Nenhuma categoria cadastrada. Inclua ao menos uma para poder cadastrar produtos.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalCategorias" tabindex="-1" aria-labelledby="modalCategoriasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="modalCategoriasLabel">Categorias</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="painelListaCategorias">
+            {% if categorias %}
+              <div class="table-responsive">
+                <table class="table table-sm table-striped align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col">Nome</th>
+                      <th scope="col" class="text-end" style="width: 1%;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cat in categorias %}
+                      <tr>
+                        <td>{{ cat.nome }}</td>
+                        <td class="text-end text-nowrap">
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary js-abrir-editar-categoria"
+                            data-categoria-id="{{ cat.id }}"
+                            data-categoria-nome="{{ cat.nome | e }}">Editar</button>
+                          <form method="post" action="{{ url_for('estoque.categoria_excluir', categoria_id=cat.id) }}" class="d-inline"
+                                onsubmit="return confirm('Excluir esta categoria? Só é possível se não houver produtos vinculados.');">
+                            <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                          </form>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="text-muted small mb-0">Nenhuma categoria cadastrada ainda.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="modalEditarCategoriaLabel">Editar categoria</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" id="formEditarCategoria" action="">
+            <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+            <div class="mb-3">
+              <label class="form-label" for="edit_categoria_nome">Nome</label>
+              <input type="text" name="nome" id="edit_categoria_nome" class="form-control" maxlength="40" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar alterações</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header fw-semibold">Entrada rápida de produtos</div>
+    <div class="card-body">
+      {% if categorias %}
+        <form method="post" action="{{ url_for('estoque.produto_criar') }}" class="js-form-produto">
+          <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+          <div class="row g-2 mb-2">
+            <div class="col-md-6">
+              <label class="form-label">Nome</label>
+              <input type="text" name="nome" class="form-control" required maxlength="120">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Categoria</label>
+              <select name="categoria_id" class="form-select js-categoria-select" required>
+                {% for cat in categorias %}
+                  <option value="{{ cat.id }}" data-nome="{{ cat.nome }}">{{ cat.nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Marca</label>
+              <input type="text" name="marca" class="form-control" required maxlength="80">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Código de barras <span class="text-muted fw-normal">(opcional)</span></label>
+              <input type="text" name="codigo_barras" class="form-control" maxlength="30" placeholder="Deixe em branco se não houver">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Preço custo</label>
+              <input type="text" name="preco_custo" class="form-control" required inputmode="decimal" placeholder="0,00">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Preço venda</label>
+              <input type="text" name="preco_venda" class="form-control" required inputmode="decimal" placeholder="0,00">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Estoque mín.</label>
+              <input type="number" name="estoque_min" class="form-control" min="0" value="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Estoque máx.</label>
+              <input type="number" name="estoque_max" class="form-control" min="0" value="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Qtd. inicial no estoque</label>
+              <input type="number" name="quantidade_inicial" class="form-control" min="0" value="0" title="Se maior que zero, informe a data de validade do lote">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Data de validade do lote</label>
+              <input type="date" name="data_validade" class="form-control" title="Obrigatória se a quantidade inicial for maior que zero">
+              <div class="form-text">A data de entrada do lote é registrada automaticamente (hoje).</div>
+            </div>
+          </div>
+          <div class="js-extra-bebidas row g-2 mb-2 d-none">
+            <div class="col-12 text-muted small">Dados para Bebidas</div>
+            <div class="col-md-4">
+              <label class="form-label">Teor alcoólico (%)</label>
+              <input type="number" step="any" name="teor_alcoolico" class="form-control" placeholder="Opcional">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Volume (ml)</label>
+              <input type="number" name="volume_ml" class="form-control" min="0" placeholder="Opcional">
+            </div>
+          </div>
+          <div class="js-extra-tabacaria row g-2 mb-2 d-none">
+            <div class="col-12 text-muted small">Dados para Tabacaria</div>
+            <div class="col-md-6">
+              <label class="form-label">Tipo (tabacaria)</label>
+              <input type="text" name="tipo_tabacaria" class="form-control" maxlength="50" placeholder="Opcional">
+            </div>
+          </div>
+          <div class="js-extra-snacks row g-2 mb-2 d-none">
+            <div class="col-12 text-muted small">Dados para Snacks</div>
+            <div class="col-md-4">
+              <label class="form-label">Peso (g)</label>
+              <input type="number" name="peso_g" class="form-control" min="0" placeholder="Opcional">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Sabor</label>
+              <input type="text" name="sabor" class="form-control" maxlength="50" placeholder="Opcional">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success">Registrar produto</button>
+        </form>
+      {% else %}
+        <p class="text-muted mb-0">Cadastre categorias na seção acima antes de incluir produtos.</p>
+      {% endif %}
+    </div>
+  </div>
+
   <form method="get" class="row g-2 mb-3">
     <div class="col-md-4">
       <select name="categoria" class="form-select">
         <option value="">Todas as categorias</option>
-        <option value="Bebidas">Bebidas</option>
-        <option value="Tabacaria">Tabacaria</option>
-        <option value="Snacks">Snacks</option>
+        {% for cat in categorias %}
+          <option value="{{ cat.nome }}" {% if filtro_categoria == cat.nome %}selected{% endif %}>{{ cat.nome }}</option>
+        {% endfor %}
       </select>
     </div>
     <div class="col-md-2 d-grid">
@@ -24,7 +206,8 @@
           <th>Produto</th>
           <th>Categoria</th>
           <th>Estoque</th>
-          <th>Ações</th>
+          <th>Entrada rápida</th>
+          <th style="width: 9rem;">Gestão</th>
         </tr>
       </thead>
       <tbody>
@@ -38,10 +221,47 @@
               </span>
             </td>
             <td>
-              <form method="post" action="{{ url_for('estoque.entrada_rapida', produto_id=produto.id) }}" class="d-flex gap-2">
-                <input type="number" name="quantidade" min="1" value="1" class="form-control form-control-sm">
-                <input type="date" name="data_validade" class="form-control form-control-sm">
-                <button class="btn btn-sm btn-primary">Entrada Rápida</button>
+              <form method="post" action="{{ url_for('estoque.entrada_rapida', produto_id=produto.id) }}" class="row g-1 g-sm-2 align-items-end">
+                <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+                <div class="col-auto">
+                  <label class="form-label mb-0 small text-muted" for="er-qtd-{{ produto.id }}">Qtd.</label>
+                  <input id="er-qtd-{{ produto.id }}" type="number" name="quantidade" min="1" value="1" class="form-control form-control-sm" style="width: 5rem;">
+                </div>
+                <div class="col-auto">
+                  <label class="form-label mb-0 small text-muted" for="er-val-{{ produto.id }}">Validade do lote</label>
+                  <input id="er-val-{{ produto.id }}" type="date" name="data_validade" class="form-control form-control-sm" style="width: 10rem;" required>
+                </div>
+                <div class="col-auto">
+                  <button class="btn btn-sm btn-primary">Registrar</button>
+                </div>
+              </form>
+              <p class="small text-muted mb-0 mt-1">Entrada do lote usa a data do sistema.</p>
+            </td>
+            <td class="text-nowrap">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary js-abrir-editar mb-1"
+                data-bs-toggle="modal"
+                data-bs-target="#modalEditarProduto"
+                data-id="{{ produto.id }}"
+                data-nome="{{ produto.nome | e }}"
+                data-categoria-id="{{ produto.categoria_id }}"
+                data-marca="{{ produto.marca | e }}"
+                data-codigo="{{ (produto.codigo_barras or '') | e }}"
+                data-preco-custo="{{ produto.preco_custo }}"
+                data-preco-venda="{{ produto.preco_venda }}"
+                data-estoque-min="{{ produto.estoque_min }}"
+                data-estoque-max="{{ produto.estoque_max }}"
+                data-teor="{{ produto.teor_alcoolico if produto.teor_alcoolico is not none else '' }}"
+                data-volume="{{ produto.volume_ml if produto.volume_ml is not none else '' }}"
+                data-tipo-tab="{{ (produto.tipo_tabacaria or '') | e }}"
+                data-peso="{{ produto.peso_g if produto.peso_g is not none else '' }}"
+                data-sabor="{{ (produto.sabor or '') | e }}"
+                data-cat-nome="{{ produto.categoria.nome | e }}">Editar</button>
+              <form method="post" action="{{ url_for('estoque.produto_excluir', produto_id=produto.id) }}" class="d-inline"
+                    onsubmit="return confirm('Excluir este produto? Lotes, movimentações e histórico deste item serão apagados.');">
+                <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
               </form>
             </td>
           </tr>
@@ -49,4 +269,189 @@
       </tbody>
     </table>
   </div>
+
+  {% if categorias %}
+    <div class="modal fade" id="modalEditarProduto" tabindex="-1" aria-labelledby="modalEditarProdutoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="modalEditarProdutoLabel">Editar produto</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="formEditarProduto" action="" class="js-form-produto">
+              <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+              <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                  <label class="form-label">Nome</label>
+                  <input type="text" name="nome" id="edit_nome" class="form-control" required maxlength="120">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Categoria</label>
+                  <select name="categoria_id" id="edit_categoria_id" class="form-select js-categoria-select" required>
+                    {% for cat in categorias %}
+                      <option value="{{ cat.id }}" data-nome="{{ cat.nome }}">{{ cat.nome }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Marca</label>
+                  <input type="text" name="marca" id="edit_marca" class="form-control" required maxlength="80">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Código de barras <span class="text-muted fw-normal">(opcional)</span></label>
+                  <input type="text" name="codigo_barras" id="edit_codigo" class="form-control" maxlength="30">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Preço custo</label>
+                  <input type="text" name="preco_custo" id="edit_preco_custo" class="form-control" required inputmode="decimal">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Preço venda</label>
+                  <input type="text" name="preco_venda" id="edit_preco_venda" class="form-control" required inputmode="decimal">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Estoque mín.</label>
+                  <input type="number" name="estoque_min" id="edit_estoque_min" class="form-control" min="0">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Estoque máx.</label>
+                  <input type="number" name="estoque_max" id="edit_estoque_max" class="form-control" min="0">
+                </div>
+              </div>
+              <div class="js-extra-bebidas row g-2 mb-2 d-none">
+                <div class="col-12 text-muted small">Dados para Bebidas</div>
+                <div class="col-md-4">
+                  <label class="form-label">Teor alcoólico (%)</label>
+                  <input type="number" step="any" name="teor_alcoolico" id="edit_teor" class="form-control">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Volume (ml)</label>
+                  <input type="number" name="volume_ml" id="edit_volume" class="form-control" min="0">
+                </div>
+              </div>
+              <div class="js-extra-tabacaria row g-2 mb-2 d-none">
+                <div class="col-12 text-muted small">Dados para Tabacaria</div>
+                <div class="col-md-6">
+                  <label class="form-label">Tipo (tabacaria)</label>
+                  <input type="text" name="tipo_tabacaria" id="edit_tipo_tab" class="form-control" maxlength="50">
+                </div>
+              </div>
+              <div class="js-extra-snacks row g-2 mb-2 d-none">
+                <div class="col-12 text-muted small">Dados para Snacks</div>
+                <div class="col-md-4">
+                  <label class="form-label">Peso (g)</label>
+                  <input type="number" name="peso_g" id="edit_peso" class="form-control" min="0">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Sabor</label>
+                  <input type="text" name="sabor" id="edit_sabor" class="form-control" maxlength="50">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">Salvar alterações</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const EDIT_URL_TEMPLATE = "{{ url_for('estoque.produto_editar', produto_id=0) }}";
+      const EDIT_CATEGORIA_URL_TEMPLATE = "{{ url_for('estoque.categoria_editar', categoria_id=0) }}";
+
+      function nomeCategoriaFromSelect(sel) {
+        const opt = sel.options[sel.selectedIndex];
+        return opt ? opt.getAttribute('data-nome') : '';
+      }
+
+      function atualizarBlocosExtras(root, nomeCat) {
+        root.querySelectorAll('.js-extra-bebidas').forEach(function (el) {
+          el.classList.toggle('d-none', nomeCat !== 'Bebidas');
+        });
+        root.querySelectorAll('.js-extra-tabacaria').forEach(function (el) {
+          el.classList.toggle('d-none', nomeCat !== 'Tabacaria');
+        });
+        root.querySelectorAll('.js-extra-snacks').forEach(function (el) {
+          el.classList.toggle('d-none', nomeCat !== 'Snacks');
+        });
+      }
+
+      function bindCategoriaSelects(scope) {
+        scope.querySelectorAll('.js-categoria-select').forEach(function (sel) {
+          sel.addEventListener('change', function () {
+            var form = sel.closest('.js-form-produto');
+            atualizarBlocosExtras(form || document, nomeCategoriaFromSelect(sel));
+          });
+        });
+      }
+
+      bindCategoriaSelects(document);
+      document.querySelectorAll('.js-form-produto').forEach(function (form) {
+        const sel = form.querySelector('.js-categoria-select');
+        if (sel) atualizarBlocosExtras(form, nomeCategoriaFromSelect(sel));
+      });
+
+      const modalEl = document.getElementById('modalEditarProduto');
+      const formEdit = document.getElementById('formEditarProduto');
+      if (modalEl && formEdit) {
+        modalEl.addEventListener('show.bs.modal', function (event) {
+          const btn = event.relatedTarget;
+          if (!btn || !btn.classList.contains('js-abrir-editar')) return;
+          const id = btn.getAttribute('data-id');
+          formEdit.action = EDIT_URL_TEMPLATE.replace(/produto\/0\//, 'produto/' + id + '/');
+          document.getElementById('edit_nome').value = btn.getAttribute('data-nome') || '';
+          document.getElementById('edit_categoria_id').value = btn.getAttribute('data-categoria-id') || '';
+          document.getElementById('edit_marca').value = btn.getAttribute('data-marca') || '';
+          document.getElementById('edit_codigo').value = btn.getAttribute('data-codigo') || '';
+          document.getElementById('edit_preco_custo').value = btn.getAttribute('data-preco-custo') || '';
+          document.getElementById('edit_preco_venda').value = btn.getAttribute('data-preco-venda') || '';
+          document.getElementById('edit_estoque_min').value = btn.getAttribute('data-estoque-min') || '0';
+          document.getElementById('edit_estoque_max').value = btn.getAttribute('data-estoque-max') || '0';
+          document.getElementById('edit_teor').value = btn.getAttribute('data-teor') || '';
+          document.getElementById('edit_volume').value = btn.getAttribute('data-volume') || '';
+          document.getElementById('edit_tipo_tab').value = btn.getAttribute('data-tipo-tab') || '';
+          document.getElementById('edit_peso').value = btn.getAttribute('data-peso') || '';
+          document.getElementById('edit_sabor').value = btn.getAttribute('data-sabor') || '';
+          const catNome = btn.getAttribute('data-cat-nome') || '';
+          atualizarBlocosExtras(formEdit, catNome);
+        });
+      }
+
+      const modalListaCat = document.getElementById('modalCategorias');
+      const modalEditCat = document.getElementById('modalEditarCategoria');
+      const formEditCat = document.getElementById('formEditarCategoria');
+      var voltarParaListaCategorias = false;
+      if (modalListaCat && modalEditCat && formEditCat) {
+        modalEditCat.addEventListener('hidden.bs.modal', function () {
+          if (voltarParaListaCategorias) {
+            voltarParaListaCategorias = false;
+            bootstrap.Modal.getOrCreateInstance(modalListaCat).show();
+          }
+        });
+        document.querySelectorAll('.js-abrir-editar-categoria').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            const listaInst = bootstrap.Modal.getInstance(modalListaCat);
+            const editInst = bootstrap.Modal.getOrCreateInstance(modalEditCat);
+            var id = btn.getAttribute('data-categoria-id');
+            formEditCat.action = EDIT_CATEGORIA_URL_TEMPLATE.replace(/categoria\/0\//, 'categoria/' + id + '/');
+            document.getElementById('edit_categoria_nome').value = btn.getAttribute('data-categoria-nome') || '';
+            voltarParaListaCategorias = true;
+            if (listaInst) {
+              modalListaCat.addEventListener('hidden.bs.modal', function abrirEdit() {
+                modalListaCat.removeEventListener('hidden.bs.modal', abrirEdit);
+                editInst.show();
+              });
+              listaInst.hide();
+            } else {
+              editInst.show();
+            }
+          });
+        });
+      }
+    })();
+  </script>
 {% endblock %}
