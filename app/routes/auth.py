@@ -9,8 +9,6 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for("main.dashboard"))
     if request.method == "POST":
         username = request.form.get("username", "")
         password = request.form.get("password", "")
@@ -20,6 +18,10 @@ def login():
             flash("Login realizado com sucesso.", "success")
             return redirect(url_for("main.dashboard"))
         flash("Usuário ou senha inválidos.", "danger")
+        return render_template("auth/login.html")
+
+    if current_user.is_authenticated and not request.args.get("trocar"):
+        return redirect(url_for("main.dashboard"))
     return render_template("auth/login.html")
 
 

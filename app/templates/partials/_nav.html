@@ -1,18 +1,25 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">Adega</a>
+    <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">Home</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="menu">
-      <ul class="navbar-nav me-auto">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('estoque.listar') }}">Estoque</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('vendas.pdv') }}">PDV</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.index') }}">Admin</a></li>
       </ul>
-      <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.login') }}">Entrar</a>
+      <div class="d-flex align-items-center ms-lg-auto flex-wrap gap-2 mt-2 mt-lg-0">
+        {% if current_user.is_authenticated %}
+          <span class="navbar-text text-light small">{{ current_user.username }}</span>
+          <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.login', trocar=1) }}">Trocar Usuário</a>
+        {% else %}
+          <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.login') }}">Entrar</a>
+        {% endif %}
+      </div>
     </div>
   </div>
 </nav>

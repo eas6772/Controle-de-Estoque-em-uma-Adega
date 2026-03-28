@@ -1,17 +1,28 @@
 {% extends 'base.html' %}
 {% import 'macros.html' as ui %}
-{% block title %}Login{% endblock %}
+{% block title %}{% if current_user.is_authenticated %}Trocar usuário{% else %}Login{% endif %}{% endblock %}
 {% block content %}
   <div class="row justify-content-center">
     <div class="col-md-4">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h1 class="h4 text-center mb-3">Acesso ao sistema</h1>
+          <h1 class="h4 text-center mb-3">
+            {% if current_user.is_authenticated %}
+              Trocar de usuário
+            {% else %}
+              Acesso ao sistema
+            {% endif %}
+          </h1>
+          {% if current_user.is_authenticated %}
+            <p class="text-muted small text-center mb-3">
+              Logado como <strong>{{ current_user.username }}</strong>. Informe outro usuário e senha para trocar.
+            </p>
+          {% endif %}
           <form method="post">
             {{ ui.text_input('username', 'Usuário') }}
             {{ ui.text_input('password', 'Senha', type='password') }}
             <div class="d-grid">
-              {{ ui.button('Entrar') }}
+              {{ ui.button('Entrar' if not current_user.is_authenticated else 'Confirmar troca') }}
             </div>
           </form>
         </div>
