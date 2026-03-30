@@ -6,3 +6,5 @@ Documentos/
 .cursor/
 *.plan
 requirements/
+.cursorignore
+temp.txt
