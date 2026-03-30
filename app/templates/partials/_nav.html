@@ -8,7 +8,7 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('estoque.listar') }}">Estoque</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('vendas.pdv') }}">PDV</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('vendas.pdv') }}">Vendas</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
         {% if current_user.is_authenticated and current_user.is_admin %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.index') }}">Admin</a></li>

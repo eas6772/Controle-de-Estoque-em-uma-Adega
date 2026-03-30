@@ -70,7 +70,7 @@
       <form method="post" action="{{ url_for('estoque.categoria_criar') }}" class="row g-2 align-items-end">
         {{ inputs_retorno_estoque() }}
         <div class="col-md-4 col-lg-3">
-          <label class="form-label mb-0" for="nova-categoria-nome">Nova categoria</label>
+          <label class="form-label mb-0" for="nova-categoria-nome">Criar Nova categoria</label>
           <input type="text" id="nova-categoria-nome" name="nome" class="form-control" maxlength="40" placeholder="Ex.: Bebidas" required>
         </div>
         <div class="col-md-3 col-lg-2">
@@ -275,7 +275,7 @@
         <div class="row g-2 align-items-end {% if filtro_modo != 'categoria' %}d-none{% endif %}" id="bloco-categoria-estoque">
           {% if categorias %}
             <div class="col-md-4 col-lg-3">
-              <label class="form-label mb-0" for="filtro-select-categoria">Categoria</label>
+              <label class="form-label mb-0" for="filtro-select-categoria">Categoria de Produto</label>
               <select name="categoria" id="filtro-select-categoria" class="form-select">
                 <option value="" disabled {% if not filtro_categoria %}selected{% endif %}>Selecione a categoria</option>
                 {% for cat in categorias %}
@@ -283,16 +283,15 @@
                 {% endfor %}
               </select>
             </div>
+            <div class="col-auto">
+              <button class="btn btn-outline-primary align-items-end gap-2" type="submit">Aplicar filtro</button>
+            </div>
+
           {% else %}
             <div class="col-12">
               <p class="text-muted small mb-0">Cadastre categorias na seção acima para filtrar por categoria.</p>
             </div>
           {% endif %}
-        </div>
-        <div class="row g-2 mt-2">
-          <div class="col-auto">
-            <button class="btn btn-outline-primary" type="submit">Aplicar filtro</button>
-          </div>
         </div>
       </form>
       <div class="table-responsive">
