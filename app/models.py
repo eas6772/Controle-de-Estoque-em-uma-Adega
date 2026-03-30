@@ -35,6 +35,7 @@ class User(UserMixin, db.Model):
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(40), unique=True, nullable=False)
+    margem_de_lucro = db.Column(db.Numeric(8, 2), nullable=False, default=Decimal("1.10"))
 
     produtos = db.relationship("Product", back_populates="categoria")
 

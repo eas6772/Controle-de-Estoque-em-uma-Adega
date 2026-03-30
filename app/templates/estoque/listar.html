@@ -1,18 +1,81 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        {% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block title %}Estoque{% endblock %}
 {% block content %}
+  {% macro inputs_retorno_estoque() %}
+    <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+    <input type="hidden" name="retorno_modo" value="{{ filtro_modo }}">
+    <input type="hidden" name="retorno_q" value="{{ filtro_busca }}">
+  {% endmacro %}
+  {% macro linha_estoque_produto(produto) %}
+          <tr>
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.categoria.nome }}</td>
+            <td>
+              <span class="badge {% if produto.estoque_baixo %}text-bg-danger{% else %}text-bg-success{% endif %}">
+                {{ produto.estoque_total }}
+              </span>
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('estoque.entrada_rapida', produto_id=produto.id) }}" class="row g-1 g-sm-2 align-items-end">
+                {{ inputs_retorno_estoque() }}
+                <div class="col-auto">
+                  <label class="form-label mb-0 small text-muted" for="er-qtd-{{ produto.id }}">Qtd.</label>
+                  <input id="er-qtd-{{ produto.id }}" type="number" name="quantidade" min="1" value="1" class="form-control form-control-sm" style="width: 5rem;">
+                </div>
+                <div class="col-auto">
+                  <label class="form-label mb-0 small text-muted" for="er-val-{{ produto.id }}">Validade do lote</label>
+                  <input id="er-val-{{ produto.id }}" type="date" name="data_validade" class="form-control form-control-sm" style="width: 10rem;" required>
+                </div>
+                <div class="col-auto">
+                  <button class="btn btn-sm btn-primary">Registrar</button>
+                </div>
+              </form>
+            </td>
+            <td class="text-nowrap">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary js-abrir-editar mb-1"
+                data-bs-toggle="modal"
+                data-bs-target="#modalEditarProduto"
+                data-id="{{ produto.id }}"
+                data-nome="{{ produto.nome | e }}"
+                data-categoria-id="{{ produto.categoria_id }}"
+                data-marca="{{ produto.marca | e }}"
+                data-codigo="{{ (produto.codigo_barras or '') | e }}"
+                data-preco-custo="{{ produto.preco_custo }}"
+                data-preco-venda="{{ produto.preco_venda }}"
+                data-estoque-min="{{ produto.estoque_min }}"
+                data-estoque-max="{{ produto.estoque_max }}"
+                data-teor="{{ produto.teor_alcoolico if produto.teor_alcoolico is not none else '' }}"
+                data-volume="{{ produto.volume_ml if produto.volume_ml is not none else '' }}"
+                data-tipo-tab="{{ (produto.tipo_tabacaria or '') | e }}"
+                data-peso="{{ produto.peso_g if produto.peso_g is not none else '' }}"
+                data-sabor="{{ (produto.sabor or '') | e }}"
+                data-cat-nome="{{ produto.categoria.nome | e }}">Editar</button>
+              <form method="post" action="{{ url_for('estoque.produto_excluir', produto_id=produto.id) }}" class="d-inline"
+                    onsubmit="return confirm('Excluir este produto? Lotes, movimentações e histórico deste item serão apagados.');">
+                {{ inputs_retorno_estoque() }}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+              </form>
+            </td>
+          </tr>
+  {% endmacro %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Gestão de Inventário</h1>
   </div>
-
+  <!--Div Categoria de Produtos: Responsavel pelo Cadastro de Categorias de Produtos -->
   <div class="card mb-4 shadow-sm">
-    <div class="card-header fw-semibold">Categorias</div>
+    <div class="card-header fw-semibold">Categorias de Produtos</div>
     <div class="card-body">
       <form method="post" action="{{ url_for('estoque.categoria_criar') }}" class="row g-2 align-items-end">
-        <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
-        <div class="col-md-5 col-lg-4">
+        {{ inputs_retorno_estoque() }}
+        <div class="col-md-4 col-lg-3">
           <label class="form-label mb-0" for="nova-categoria-nome">Nova categoria</label>
           <input type="text" id="nova-categoria-nome" name="nome" class="form-control" maxlength="40" placeholder="Ex.: Bebidas" required>
+        </div>
+        <div class="col-md-3 col-lg-2">
+          <label class="form-label mb-0" for="nova-categoria-margem">Margem de lucro</label>
+          <input type="text" id="nova-categoria-margem" name="margem_de_lucro" class="form-control" required inputmode="decimal" placeholder="Ex.: 1,30" title="Multiplicador: preço de venda = preço de custo × margem (2 casas decimais).">
         </div>
         <div class="col-auto d-flex flex-wrap align-items-end gap-2">
           <button type="submit" class="btn btn-primary">Incluir</button>
@@ -26,7 +89,7 @@
       {% endif %}
     </div>
   </div>
-
+  <!--Div Gerenciar Categorias: Responsavel pela Edição das Categorias de Produtos -->
   <div class="modal fade" id="modalCategorias" tabindex="-1" aria-labelledby="modalCategoriasLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
@@ -42,6 +105,7 @@
                   <thead>
                     <tr>
                       <th scope="col">Nome</th>
+                      <th scope="col" class="text-end">Margem de lucro</th>
                       <th scope="col" class="text-end" style="width: 1%;">Ações</th>
                     </tr>
                   </thead>
@@ -49,15 +113,17 @@
                     {% for cat in categorias %}
                       <tr>
                         <td>{{ cat.nome }}</td>
+                        <td class="text-end">{{ '%.2f'|format(cat.margem_de_lucro|float) | replace('.', ',') }}</td>
                         <td class="text-end text-nowrap">
                           <button
                             type="button"
                             class="btn btn-sm btn-outline-secondary js-abrir-editar-categoria"
                             data-categoria-id="{{ cat.id }}"
-                            data-categoria-nome="{{ cat.nome | e }}">Editar</button>
+                            data-categoria-nome="{{ cat.nome | e }}"
+                            data-categoria-margem="{{ '%.2f'|format(cat.margem_de_lucro|float) }}">Editar</button>
                           <form method="post" action="{{ url_for('estoque.categoria_excluir', categoria_id=cat.id) }}" class="d-inline"
                                 onsubmit="return confirm('Excluir esta categoria? Só é possível se não houver produtos vinculados.');">
-                            <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+                            {{ inputs_retorno_estoque() }}
                             <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
                           </form>
                         </td>
@@ -84,10 +150,14 @@
         </div>
         <div class="modal-body">
           <form method="post" id="formEditarCategoria" action="">
-            <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+            {{ inputs_retorno_estoque() }}
             <div class="mb-3">
               <label class="form-label" for="edit_categoria_nome">Nome</label>
               <input type="text" name="nome" id="edit_categoria_nome" class="form-control" maxlength="40" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="edit_categoria_margem">Margem de lucro</label>
+              <input type="text" name="margem_de_lucro" id="edit_categoria_margem" class="form-control" required inputmode="decimal" placeholder="Ex.: 1,30" title="Preço de venda = preço de custo × margem (2 casas decimais).">
             </div>
             <button type="submit" class="btn btn-primary">Salvar alterações</button>
           </form>
@@ -95,13 +165,13 @@
       </div>
     </div>
   </div>
-
+  <!--Div Cadastro de Produtos: Responsavel pelo Cadastro de Produtos -->
   <div class="card mb-4 shadow-sm">
-    <div class="card-header fw-semibold">Entrada rápida de produtos</div>
+    <div class="card-header fw-semibold">Cadastro de Produtos</div>
     <div class="card-body">
       {% if categorias %}
         <form method="post" action="{{ url_for('estoque.produto_criar') }}" class="js-form-produto">
-          <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+          {{ inputs_retorno_estoque() }}
           <div class="row g-2 mb-2">
             <div class="col-md-6">
               <label class="form-label">Nome</label>
@@ -111,7 +181,7 @@
               <label class="form-label">Categoria</label>
               <select name="categoria_id" class="form-select js-categoria-select" required>
                 {% for cat in categorias %}
-                  <option value="{{ cat.id }}" data-nome="{{ cat.nome }}">{{ cat.nome }}</option>
+                  <option value="{{ cat.id }}" data-nome="{{ cat.nome }}" data-margem-lucro="{{ '%.2f'|format(cat.margem_de_lucro|float) }}">{{ cat.nome }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -125,11 +195,11 @@
             </div>
             <div class="col-md-2">
               <label class="form-label">Preço custo</label>
-              <input type="text" name="preco_custo" class="form-control" required inputmode="decimal" placeholder="0,00">
+              <input type="text" name="preco_custo" class="form-control js-preco-custo" required inputmode="decimal" placeholder="0,00" autocomplete="off">
             </div>
             <div class="col-md-2">
               <label class="form-label">Preço venda</label>
-              <input type="text" name="preco_venda" class="form-control" required inputmode="decimal" placeholder="0,00">
+              <input type="text" name="preco_venda" class="form-control js-preco-venda" required inputmode="decimal" placeholder="0,00" title="Calculado: preço custo × margem da categoria (pode ajustar manualmente).">
             </div>
             <div class="col-md-2">
               <label class="form-label">Estoque mín.</label>
@@ -146,11 +216,10 @@
             <div class="col-md-3">
               <label class="form-label">Data de validade do lote</label>
               <input type="date" name="data_validade" class="form-control" title="Obrigatória se a quantidade inicial for maior que zero">
-              <div class="form-text">A data de entrada do lote é registrada automaticamente (hoje).</div>
             </div>
           </div>
           <div class="js-extra-bebidas row g-2 mb-2 d-none">
-            <div class="col-12 text-muted small">Dados para Bebidas</div>
+            <div class="col-12 text-muted medium"><b>Dados para Bebidas</b></div>
             <div class="col-md-4">
               <label class="form-label">Teor alcoólico (%)</label>
               <input type="number" step="any" name="teor_alcoolico" class="form-control" placeholder="Opcional">
@@ -185,89 +254,105 @@
       {% endif %}
     </div>
   </div>
-
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-4">
-      <select name="categoria" class="form-select">
-        <option value="">Todas as categorias</option>
-        {% for cat in categorias %}
-          <option value="{{ cat.nome }}" {% if filtro_categoria == cat.nome %}selected{% endif %}>{{ cat.nome }}</option>
-        {% endfor %}
-      </select>
+  <!--Div Atualizar Estoque de Produtos: Responsavel pela atualização do Estoque de Produtos -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header fw-semibold">Atualização de Estoque de Produtos</div>
+    <div class="card-body">
+      <form method="get" id="formFiltroAtualizacaoEstoque" class="mb-3">
+        <p class="text-muted small mb-2 mb-md-3">Escolha se deseja localizar o produto pelo nome ou pela categoria.</p>
+        <div class="btn-group flex-wrap mb-3" role="group" aria-label="Modo de filtro">
+          <input type="radio" class="btn-check" name="modo" id="modo-busca-estoque" value="busca" autocomplete="off" {% if filtro_modo == 'busca' %}checked{% endif %}>
+          <label class="btn btn-outline-primary" for="modo-busca-estoque">Buscar por nome</label>
+          <input type="radio" class="btn-check" name="modo" id="modo-categoria-estoque" value="categoria" autocomplete="off" {% if filtro_modo == 'categoria' %}checked{% endif %}>
+          <label class="btn btn-outline-primary" for="modo-categoria-estoque">Filtrar por categoria</label>
+        </div>
+        <div class="row g-2 align-items-end {% if filtro_modo != 'busca' %}d-none{% endif %}" id="bloco-busca-estoque">
+          <div class="col-md-8 col-lg-6">
+            <label class="form-label mb-0" for="filtro-q-estoque">Nome do produto</label>
+            <input type="search" name="q" id="filtro-q-estoque" class="form-control" value="{{ filtro_busca }}" placeholder="Digite parte do nome" autocomplete="off">
+          </div>
+        </div>
+        <div class="row g-2 align-items-end {% if filtro_modo != 'categoria' %}d-none{% endif %}" id="bloco-categoria-estoque">
+          {% if categorias %}
+            <div class="col-md-4 col-lg-3">
+              <label class="form-label mb-0" for="filtro-select-categoria">Categoria</label>
+              <select name="categoria" id="filtro-select-categoria" class="form-select">
+                <option value="" disabled {% if not filtro_categoria %}selected{% endif %}>Selecione a categoria</option>
+                {% for cat in categorias %}
+                  <option value="{{ cat.nome }}" {% if filtro_categoria == cat.nome %}selected{% endif %}>{{ cat.nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% else %}
+            <div class="col-12">
+              <p class="text-muted small mb-0">Cadastre categorias na seção acima para filtrar por categoria.</p>
+            </div>
+          {% endif %}
+        </div>
+        <div class="row g-2 mt-2">
+          <div class="col-auto">
+            <button class="btn btn-outline-primary" type="submit">Aplicar filtro</button>
+          </div>
+        </div>
+      </form>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Categoria</th>
+              <th>Estoque Atual</th>
+              <th>Entrada no Estoque</th>
+              <th style="width: 9rem;">Gestão</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for produto in produtos %}
+              {% if loop.index <= 3 %}
+                {{ linha_estoque_produto(produto) }}
+              {% endif %}
+            {% endfor %}
+            {% if produtos|length > 3 %}
+              <tr class="border-top-0">
+                <td colspan="5" class="p-0 border-bottom-0">
+                  <div class="accordion accordion-flush" id="accordionMaisProdutosEstoque">
+                    <div class="accordion-item border-0">
+                      <h2 class="accordion-header" id="headingMaisProdutosEstoque">
+                        <button class="accordion-button collapsed py-2 shadow-none bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMaisProdutosEstoque" aria-expanded="false" aria-controls="collapseMaisProdutosEstoque">
+                          Ver mais produtos ({{ produtos|length - 3 }})
+                        </button>
+                      </h2>
+                      <div id="collapseMaisProdutosEstoque" class="accordion-collapse collapse" aria-labelledby="headingMaisProdutosEstoque" data-bs-parent="#accordionMaisProdutosEstoque">
+                        <div class="accordion-body p-0">
+                          <div class="table-responsive border-top">
+                            <table class="table table-striped align-middle mb-0">
+                              <thead>
+                                <tr>
+                                  <th>Produto</th>
+                                  <th>Categoria</th>
+                                  <th>Estoque Atual</th>
+                                  <th>Entrada no Estoque</th>
+                                  <th style="width: 9rem;">Gestão</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for produto in produtos[3:] %}
+                                  {{ linha_estoque_produto(produto) }}
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="col-md-2 d-grid">
-      <button class="btn btn-outline-primary" type="submit">Filtrar</button>
-    </div>
-  </form>
-  <div class="table-responsive">
-    <table class="table table-striped align-middle">
-      <thead>
-        <tr>
-          <th>Produto</th>
-          <th>Categoria</th>
-          <th>Estoque</th>
-          <th>Entrada rápida</th>
-          <th style="width: 9rem;">Gestão</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for produto in produtos %}
-          <tr>
-            <td>{{ produto.nome }}</td>
-            <td>{{ produto.categoria.nome }}</td>
-            <td>
-              <span class="badge {% if produto.estoque_baixo %}text-bg-danger{% else %}text-bg-success{% endif %}">
-                {{ produto.estoque_total }}
-              </span>
-            </td>
-            <td>
-              <form method="post" action="{{ url_for('estoque.entrada_rapida', produto_id=produto.id) }}" class="row g-1 g-sm-2 align-items-end">
-                <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
-                <div class="col-auto">
-                  <label class="form-label mb-0 small text-muted" for="er-qtd-{{ produto.id }}">Qtd.</label>
-                  <input id="er-qtd-{{ produto.id }}" type="number" name="quantidade" min="1" value="1" class="form-control form-control-sm" style="width: 5rem;">
-                </div>
-                <div class="col-auto">
-                  <label class="form-label mb-0 small text-muted" for="er-val-{{ produto.id }}">Validade do lote</label>
-                  <input id="er-val-{{ produto.id }}" type="date" name="data_validade" class="form-control form-control-sm" style="width: 10rem;" required>
-                </div>
-                <div class="col-auto">
-                  <button class="btn btn-sm btn-primary">Registrar</button>
-                </div>
-              </form>
-              <p class="small text-muted mb-0 mt-1">Entrada do lote usa a data do sistema.</p>
-            </td>
-            <td class="text-nowrap">
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary js-abrir-editar mb-1"
-                data-bs-toggle="modal"
-                data-bs-target="#modalEditarProduto"
-                data-id="{{ produto.id }}"
-                data-nome="{{ produto.nome | e }}"
-                data-categoria-id="{{ produto.categoria_id }}"
-                data-marca="{{ produto.marca | e }}"
-                data-codigo="{{ (produto.codigo_barras or '') | e }}"
-                data-preco-custo="{{ produto.preco_custo }}"
-                data-preco-venda="{{ produto.preco_venda }}"
-                data-estoque-min="{{ produto.estoque_min }}"
-                data-estoque-max="{{ produto.estoque_max }}"
-                data-teor="{{ produto.teor_alcoolico if produto.teor_alcoolico is not none else '' }}"
-                data-volume="{{ produto.volume_ml if produto.volume_ml is not none else '' }}"
-                data-tipo-tab="{{ (produto.tipo_tabacaria or '') | e }}"
-                data-peso="{{ produto.peso_g if produto.peso_g is not none else '' }}"
-                data-sabor="{{ (produto.sabor or '') | e }}"
-                data-cat-nome="{{ produto.categoria.nome | e }}">Editar</button>
-              <form method="post" action="{{ url_for('estoque.produto_excluir', produto_id=produto.id) }}" class="d-inline"
-                    onsubmit="return confirm('Excluir este produto? Lotes, movimentações e histórico deste item serão apagados.');">
-                <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
-                <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
   </div>
 
   {% if categorias %}
@@ -280,7 +365,7 @@
           </div>
           <div class="modal-body">
             <form method="post" id="formEditarProduto" action="" class="js-form-produto">
-              <input type="hidden" name="retorno_categoria" value="{{ filtro_categoria }}">
+              {{ inputs_retorno_estoque() }}
               <div class="row g-2 mb-2">
                 <div class="col-md-6">
                   <label class="form-label">Nome</label>
@@ -290,7 +375,7 @@
                   <label class="form-label">Categoria</label>
                   <select name="categoria_id" id="edit_categoria_id" class="form-select js-categoria-select" required>
                     {% for cat in categorias %}
-                      <option value="{{ cat.id }}" data-nome="{{ cat.nome }}">{{ cat.nome }}</option>
+                      <option value="{{ cat.id }}" data-nome="{{ cat.nome }}" data-margem-lucro="{{ '%.2f'|format(cat.margem_de_lucro|float) }}">{{ cat.nome }}</option>
                     {% endfor %}
                   </select>
                 </div>
@@ -304,11 +389,11 @@
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Preço custo</label>
-                  <input type="text" name="preco_custo" id="edit_preco_custo" class="form-control" required inputmode="decimal">
+                  <input type="text" name="preco_custo" id="edit_preco_custo" class="form-control js-preco-custo" required inputmode="decimal" autocomplete="off">
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Preço venda</label>
-                  <input type="text" name="preco_venda" id="edit_preco_venda" class="form-control" required inputmode="decimal">
+                  <input type="text" name="preco_venda" id="edit_preco_venda" class="form-control js-preco-venda" required inputmode="decimal" title="Calculado: preço custo × margem da categoria (pode ajustar manualmente).">
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Estoque mín.</label>
@@ -380,11 +465,32 @@
         });
       }
 
+      function parseMoedaValor(s) {
+        if (s == null || String(s).trim() === '') return NaN;
+        return parseFloat(String(s).trim().replace(',', '.'));
+      }
+
+      function atualizarPrecoVendaForm(form) {
+        var sel = form.querySelector('.js-categoria-select');
+        var custoIn = form.querySelector('.js-preco-custo');
+        var vendaIn = form.querySelector('.js-preco-venda');
+        if (!sel || !custoIn || !vendaIn) return;
+        var opt = sel.options[sel.selectedIndex];
+        var margemStr = opt ? opt.getAttribute('data-margem-lucro') : '';
+        var margem = margemStr ? parseFloat(margemStr) : NaN;
+        var custo = parseMoedaValor(custoIn.value);
+        if (!isNaN(margem) && margem > 0 && !isNaN(custo)) {
+          var venda = custo * margem;
+          vendaIn.value = venda.toFixed(2).replace('.', ',');
+        }
+      }
+
       function bindCategoriaSelects(scope) {
         scope.querySelectorAll('.js-categoria-select').forEach(function (sel) {
           sel.addEventListener('change', function () {
             var form = sel.closest('.js-form-produto');
             atualizarBlocosExtras(form || document, nomeCategoriaFromSelect(sel));
+            if (form) atualizarPrecoVendaForm(form);
           });
         });
       }
@@ -393,6 +499,11 @@
       document.querySelectorAll('.js-form-produto').forEach(function (form) {
         const sel = form.querySelector('.js-categoria-select');
         if (sel) atualizarBlocosExtras(form, nomeCategoriaFromSelect(sel));
+        var custoIn = form.querySelector('.js-preco-custo');
+        if (custoIn) {
+          custoIn.addEventListener('input', function () { atualizarPrecoVendaForm(form); });
+          custoIn.addEventListener('change', function () { atualizarPrecoVendaForm(form); });
+        }
       });
 
       const modalEl = document.getElementById('modalEditarProduto');
@@ -439,6 +550,8 @@
             var id = btn.getAttribute('data-categoria-id');
             formEditCat.action = EDIT_CATEGORIA_URL_TEMPLATE.replace(/categoria\/0\//, 'categoria/' + id + '/');
             document.getElementById('edit_categoria_nome').value = btn.getAttribute('data-categoria-nome') || '';
+            var margemAttr = btn.getAttribute('data-categoria-margem') || '';
+            document.getElementById('edit_categoria_margem').value = margemAttr ? margemAttr.replace('.', ',') : '';
             voltarParaListaCategorias = true;
             if (listaInst) {
               modalListaCat.addEventListener('hidden.bs.modal', function abrirEdit() {
@@ -451,6 +564,32 @@
             }
           });
         });
+      }
+
+      const formFiltroEstoque = document.getElementById('formFiltroAtualizacaoEstoque');
+      if (formFiltroEstoque) {
+        const modoBusca = document.getElementById('modo-busca-estoque');
+        const modoCat = document.getElementById('modo-categoria-estoque');
+        const blocoBusca = document.getElementById('bloco-busca-estoque');
+        const blocoCat = document.getElementById('bloco-categoria-estoque');
+        const inputQ = document.getElementById('filtro-q-estoque');
+        const selectCat = document.getElementById('filtro-select-categoria');
+
+        function syncModoFiltroEstoque() {
+          const busca = modoBusca && modoBusca.checked;
+          if (blocoBusca) blocoBusca.classList.toggle('d-none', !busca);
+          if (blocoCat) blocoCat.classList.toggle('d-none', busca);
+          if (inputQ) inputQ.disabled = !busca;
+          if (selectCat) {
+            selectCat.disabled = busca;
+            if (busca) selectCat.removeAttribute('required');
+            else selectCat.setAttribute('required', 'required');
+          }
+        }
+
+        if (modoBusca) modoBusca.addEventListener('change', syncModoFiltroEstoque);
+        if (modoCat) modoCat.addEventListener('change', syncModoFiltroEstoque);
+        syncModoFiltroEstoque();
       }
     })();
   </script>
