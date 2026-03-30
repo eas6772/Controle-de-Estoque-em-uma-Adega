@@ -11,9 +11,22 @@ from app.models import Batch, Category, Product, StockMovement
 estoque_bp = Blueprint("estoque", __name__)
 
 
-def _redirect_listar():
+def _listar_query_params_from_form() -> dict:
+    modo = (request.form.get("retorno_modo") or "busca").strip()
+    if modo not in ("busca", "categoria"):
+        modo = "busca"
+    q = (request.form.get("retorno_q") or "").strip()
     cat = (request.form.get("retorno_categoria") or "").strip()
-    return redirect(url_for("estoque.listar", **({"categoria": cat} if cat else {})))
+    params: dict = {"modo": modo}
+    if modo == "busca" and q:
+        params["q"] = q
+    elif modo == "categoria" and cat:
+        params["categoria"] = cat
+    return params
+
+
+def _redirect_listar():
+    return redirect(url_for("estoque.listar", **_listar_query_params_from_form()))
 
 
 def _optional_int(name: str) -> int | None:
@@ -28,6 +41,20 @@ def _optional_float(name: str) -> float | None:
     if raw is None or str(raw).strip() == "":
         return None
     return float(raw)
+
+
+def _parse_margem_categoria() -> tuple[Decimal | None, str | None]:
+    raw = (request.form.get("margem_de_lucro") or "").strip().replace(",", ".")
+    if not raw:
+        return None, "Informe a margem de lucro da categoria."
+    try:
+        m = Decimal(raw)
+    except (InvalidOperation, TypeError):
+        return None, "Margem de lucro inválida."
+    if m <= 0:
+        return None, "Margem de lucro deve ser maior que zero."
+    m = m.quantize(Decimal("0.01"))
+    return m, None
 
 
 def _preencher_produto_do_form(produto: Product) -> str | None:
@@ -95,7 +122,11 @@ def categoria_criar():
     if Category.query.filter_by(nome=nome).first():
         flash("Já existe uma categoria com esse nome.", "warning")
         return _redirect_listar()
-    db.session.add(Category(nome=nome))
+    margem, err = _parse_margem_categoria()
+    if err:
+        flash(err, "warning")
+        return _redirect_listar()
+    db.session.add(Category(nome=nome, margem_de_lucro=margem))
     db.session.commit()
     flash("Categoria criada.", "success")
     return _redirect_listar()
@@ -116,13 +147,18 @@ def categoria_editar(categoria_id: int):
     if Category.query.filter(Category.nome == nome, Category.id != cat.id).first():
         flash("Já existe outra categoria com esse nome.", "warning")
         return _redirect_listar()
+    margem, err = _parse_margem_categoria()
+    if err:
+        flash(err, "warning")
+        return _redirect_listar()
     cat.nome = nome
+    cat.margem_de_lucro = margem
     db.session.commit()
     flash("Categoria atualizada.", "success")
-    retorno = (request.form.get("retorno_categoria") or "").strip()
-    if retorno == old_nome:
-        retorno = nome
-    return redirect(url_for("estoque.listar", **({"categoria": retorno} if retorno else {})))
+    params = _listar_query_params_from_form()
+    if params.get("modo") == "categoria" and params.get("categoria") == old_nome:
+        params["categoria"] = nome
+    return redirect(url_for("estoque.listar", **params))
 
 
 @estoque_bp.route("/categoria/<int:categoria_id>/excluir", methods=["POST"])
@@ -132,21 +168,31 @@ def categoria_excluir(categoria_id: int):
     if Product.query.filter_by(categoria_id=cat.id).first():
         flash("Não é possível excluir: existem produtos nesta categoria.", "warning")
         return _redirect_listar()
-    retorno = (request.form.get("retorno_categoria") or "").strip()
-    if retorno == cat.nome:
-        retorno = ""
     db.session.delete(cat)
     db.session.commit()
     flash("Categoria excluída.", "success")
-    return redirect(url_for("estoque.listar", **({"categoria": retorno} if retorno else {})))
+    params = _listar_query_params_from_form()
+    if params.get("modo") == "categoria" and params.get("categoria") == cat.nome:
+        params.pop("categoria", None)
+    return redirect(url_for("estoque.listar", **params))
 
 
 @estoque_bp.route("/")
 @login_required
 def listar():
-    categoria = request.args.get("categoria")
+    modo_raw = (request.args.get("modo") or "").strip()
+    categoria = (request.args.get("categoria") or "").strip() or None
+    q = (request.args.get("q") or "").strip()
+    if modo_raw in ("busca", "categoria"):
+        modo = modo_raw
+    elif categoria:
+        modo = "categoria"
+    else:
+        modo = "busca"
     query = Product.query
-    if categoria:
+    if modo == "busca" and q:
+        query = query.filter(Product.nome.ilike(f"%{q}%"))
+    elif modo == "categoria" and categoria:
         query = query.join(Product.categoria).filter_by(nome=categoria)
     produtos = query.order_by(Product.nome).all()
     categorias = Category.query.order_by(Category.nome).all()
@@ -155,6 +201,8 @@ def listar():
         produtos=produtos,
         categorias=categorias,
         filtro_categoria=categoria or "",
+        filtro_modo=modo,
+        filtro_busca=q,
     )
 
 
