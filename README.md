@@ -1,7 +1,7 @@
 # Uso de um App Web para Controle de Estoque em uma Adega
 Esse projeto foi desenvolvido em Equipe para atender a disciplina **Projeto Integrador I da UNIVESP - 1º Semestre 2026**.  
 O objetivo do aplicativo é realizar o controle de Estoque de uma "Adega" de bairro, localizada na cidade de Santos-SP.
-Para gerar o App foi utilizado a Linguagem de Programação Python com framework web Flask e SQLite para gerar o banco de dados. 
+Para gerar o App foi utilizado a Linguagem de Programação Python com framework web Flask e SQLite para gerar o banco de dados.   
 Para testar o App em um servidor local, deve-se seguir os passos listados abaixo:  
 >- Ter instalado na sua maquina local o Python.  
 >- Ter em sua maquina o Git instalado. Caso não tenha, acesse git-scm.com e baixe a versão compatível com seu sistema operacional. Após instalado configure o Git Localmente.  
