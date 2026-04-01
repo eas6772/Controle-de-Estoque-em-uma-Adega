@@ -4,7 +4,7 @@ O objetivo do aplicativo é realizar o controle de Estoque de uma "Adega" de bai
 Para gerar o App foi utilizado a Linguagem de Programação Python com framework web Flask e SQLite para gerar o banco de dados. 
 Para testar o App em um servidor local, deve-se seguir os passos listados abaixo:  
 >- Ter instalado na sua maquina local o Python.  
->- Ter em sua maquina o Git instalado. Caso não tenha, acesse git-scm.com e baixe a versão compatível com seu sistema operacional.Apos instalado configure o Git Localmente.  
+>- Ter em sua maquina o Git instalado. Caso não tenha, acesse git-scm.com e baixe a versão compatível com seu sistema operacional. Após instalado configure o Git Localmente.  
 >- Após ter o Git instalado e Configurado, faça  a clonagem deste repositório para uma pasta em sua maquina.  
 >- Para criar um ambiente virtual na pasta onde foi clonado o repositório, abra um Terminal na pasta e digite: ***python -m venv .venv***
 >- Ative o ambiente virtual de acordo com o SO usado. Se o ambiente for ativado corretamente o Terminal mostrará ***(.venv)*** antes do prompt.  
