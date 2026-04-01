@@ -10,6 +10,8 @@ Para testar o App em um servidor local, deve-se seguir os passos listados abaixo
 >- Ative o ambiente virtual de acordo com o SO usado. Se o ambiente for ativado corretamente o Terminal mostrará ***(.venv)*** antes do prompt.  
 >- Uma vez dentro do ambiente virtual instale as dependências do Projeto digitando no prompt: ***pip install -r requirements.txt***  
 >- rode a aplicação em um servidor local com o comando: ***python run.py***
+Para fazer login use: Usuário ***admin*** e psw: ***123456***
+
    
 
   
