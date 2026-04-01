@@ -3,7 +3,7 @@ Esse projeto foi desenvolvido em Equipe para atender a disciplina **Projeto Inte
 O objetivo do aplicativo é realizar o controle de Estoque de uma "Adega" de bairro, localizada na cidade de Santos-SP.
 Para gerar o App foi utilizado a Linguagem de Programação Python com framework web Flask e SQLite para gerar o banco de dados. 
 Para testar o App em um servidor local, deve-se seguir os passos listados abaixo:  
-    - Ter instalado na sua maquina local o Python.  
+>- Ter instalado na sua maquina local o Python.  
     - Ter em sua maquina o Git instalado. Caso não tenha, acesse git-scm.com e baixe a versão compatível com seu sistema operacional.Apos instalado configure o 
       Git Localmente.  
     - Após ter o Git instalado e Configurado, faça  a clonagem deste repositório para uma pasta em sua maquina.  
