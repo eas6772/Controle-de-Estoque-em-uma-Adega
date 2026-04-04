@@ -8,3 +8,4 @@ Documentos/
 requirements/
 .cursorignore
 temp.txt
+*.mmd
